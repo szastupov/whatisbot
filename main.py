@@ -41,6 +41,10 @@ def wiki_en(message, match):
 def wiki_ru(message, match):
     return wiki(message, match, "ru")
 
+@bot.command(r"/?(que es|qué es|que significa|qué significa|quien es|quién es) (.*)")
+def wiki_es(message, match):
+    return wiki(message, match, "es")
+
 logging.basicConfig(level=logging.DEBUG)
 
 loop = asyncio.get_event_loop()
