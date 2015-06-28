@@ -6,10 +6,6 @@ import aiohttp
 API_URL = "https://api.telegram.org"
 API_TIMEOUT = 60
 
-conn = aiohttp.TCPConnector(verify_ssl=False)
-session = aiohttp.ClientSession(connector=conn)
-
-
 class TeleBot:
     def __init__(self, api_token, api_timeout=API_TIMEOUT):
         self.api_token = api_token
