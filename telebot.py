@@ -53,8 +53,8 @@ class TeleBot:
         offset = 0
         while self.running:
             resp = yield from self.api_call('getUpdates', offset=offset+1, timeout=API_TIMEOUT)
-            logging.debug("getUpdates %s", resp)
             for update in resp["result"]:
+                logging.debug("update %s", update)
                 offset = max(offset, update["update_id"])
                 message = update["message"]
                 asyncio.async(self.process_message(message))
