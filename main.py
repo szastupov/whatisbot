@@ -33,7 +33,7 @@ def wiki(message, match, lang):
         yield from bot.reply_to(message, page['extract'])
 
 
-@bot.command(r"/?(whatis|what is|define|wiki) (.*)")
+@bot.command(r"/?(whatis|what is|who is|define|wiki) (.*)")
 def wiki_en(message, match):
     return wiki(message, match, "en")
 

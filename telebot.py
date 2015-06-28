@@ -5,15 +5,15 @@ import aiohttp
 
 API_URL = "https://api.telegram.org"
 API_TIMEOUT = 60
-COMMANDS = []
 
 conn = aiohttp.TCPConnector(verify_ssl=False)
 session = aiohttp.ClientSession(connector=conn)
 
 
 class TeleBot:
-    def __init__(self, api_token, timeout=API_TIMEOUT):
+    def __init__(self, api_token, api_timeout=API_TIMEOUT):
         self.api_token = api_token
+        self.api_timeout = api_timeout
         self.commands = []
         conn = aiohttp.TCPConnector(verify_ssl=False)
         self.session = aiohttp.ClientSession(connector=conn)
@@ -52,7 +52,10 @@ class TeleBot:
     def loop(self):
         offset = 0
         while self.running:
-            resp = yield from self.api_call('getUpdates', offset=offset+1, timeout=API_TIMEOUT)
+            resp = yield from self.api_call('getUpdates',
+                offset=offset+1,
+                timeout=self.api_timeout)
+
             for update in resp["result"]:
                 logging.debug("update %s", update)
                 offset = max(offset, update["update_id"])
