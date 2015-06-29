@@ -1,10 +1,10 @@
 import logging
 import asyncio
-import aiohttp
 import os
 from telebot import TeleBot
 
 bot = TeleBot(os.environ["API_TOKEN"])
+
 
 @asyncio.coroutine
 def search_wiki(text, lang="en"):
@@ -13,14 +13,15 @@ def search_wiki(text, lang="en"):
         'titles': text,
         'action': 'query',
         'exintro': '',
-        'format': 'json', 
-        'prop': 'extracts', 
+        'format': 'json',
+        'prop': 'extracts',
         'explaintext': '',
         'redirects': ''
     }
     response = yield from bot.session.request('GET', url, params=params)
     assert response.status == 200
     return (yield from response.json())
+
 
 @asyncio.coroutine
 def wiki(message, match, lang):
@@ -37,9 +38,11 @@ def wiki(message, match, lang):
 def wiki_en(message, match):
     return wiki(message, match, "en")
 
+
 @bot.command(r"/?(что такое|что за|опредиление|вики) (.*)")
 def wiki_ru(message, match):
     return wiki(message, match, "ru")
+
 
 @bot.command(r"/?(que es|qué es|que significa|qué significa|quien es|quién es) (.*)")
 def wiki_es(message, match):

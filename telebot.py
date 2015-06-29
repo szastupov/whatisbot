@@ -6,6 +6,7 @@ import aiohttp
 API_URL = "https://api.telegram.org"
 API_TIMEOUT = 60
 
+
 class TeleBot:
     def __init__(self, api_token, api_timeout=API_TIMEOUT):
         self.api_token = api_token
@@ -23,7 +24,8 @@ class TeleBot:
         return (yield from response.json())
 
     def reply_to(self, message, text):
-        return self.api_call('sendMessage',
+        return self.api_call(
+            'sendMessage',
             chat_id=message["chat"]["id"],
             text=text,
             reply_to_message_id=message["message_id"])
@@ -35,7 +37,7 @@ class TeleBot:
 
     @asyncio.coroutine
     def process_message(self, message):
-        if not "text" in message:
+        if "text" not in message:
             return
         text = message["text"].lower()
 
@@ -48,7 +50,8 @@ class TeleBot:
     def loop(self):
         offset = 0
         while self.running:
-            resp = yield from self.api_call('getUpdates',
+            resp = yield from self.api_call(
+                'getUpdates',
                 offset=offset+1,
                 timeout=self.api_timeout)
 
@@ -57,4 +60,3 @@ class TeleBot:
                 offset = max(offset, update["update_id"])
                 message = update["message"]
                 asyncio.async(self.process_message(message))
-
