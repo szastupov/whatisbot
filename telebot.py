@@ -19,7 +19,7 @@ class TeleBot:
     @asyncio.coroutine
     def api_call(self, method, **params):
         url = "{0}/bot{1}/{2}".format(API_URL, self.api_token, method)
-        response = yield from self.session.request('GET', url, params=params)
+        response = yield from self.session.request('POST', url, data=params)
         assert response.status == 200
         return (yield from response.json())
 
