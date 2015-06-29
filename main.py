@@ -45,7 +45,7 @@ def wiki_ru(message, match):
 def wiki_es(message, match):
     return wiki(message, match, "es")
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG, filename="WhatisBot.log")
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(bot.loop())
