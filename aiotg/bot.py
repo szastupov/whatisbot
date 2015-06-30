@@ -7,7 +7,7 @@ API_URL = "https://api.telegram.org"
 API_TIMEOUT = 60
 
 
-class TeleBot:
+class TgBot:
     """Telegram bot framework designed for asyncio
 
     Args:

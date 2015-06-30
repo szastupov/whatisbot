@@ -1,9 +1,9 @@
 import logging
 import asyncio
 import os
-from telebot import TeleBot
+from aiotg import TgBot
 
-bot = TeleBot(os.environ["API_TOKEN"])
+bot = TgBot(os.environ["API_TOKEN"])
 logger = logging.getLogger("WhatisBot")
 
 
