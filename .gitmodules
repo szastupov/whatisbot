@@ -1,0 +1,3 @@
+[submodule "aiotg"]
+	path = aiotg
+	url = git@github.com:szastupov/aiotg.git
