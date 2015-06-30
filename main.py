@@ -63,6 +63,27 @@ def wiki_es(message, match):
     return wiki(message, match.group(2), "es", "No sé :(")
 
 
+@bot.command("(/start|/?help)")
+def usage(message, match):
+    text = """
+Hi! I can search Wikipedia for you and your chat friends.
+
+Here is how you can talk to me:
+/define independence
+/whatis love
+what is love
+who is Nikola Tesla?
+что такое счастье
+что за черт?
+que es tequila
+
+Created by @stepanz
+
+If you like this bot, please rate it at: https://telegram.me/storebot?start=whatisbot
+    """
+    return bot.reply_to(message, text)
+
+
 @bot.default
 def default(message):
     return wiki(message, message["text"])
