@@ -15,6 +15,7 @@ class TeleBot:
         conn = aiohttp.TCPConnector(verify_ssl=False)
         self.session = aiohttp.ClientSession(connector=conn)
         self.running = True
+        self._default = lambda m: None
 
     @asyncio.coroutine
     def api_call(self, method, **params):
@@ -28,12 +29,18 @@ class TeleBot:
             'sendMessage',
             chat_id=message["chat"]["id"],
             text=text,
+            disable_web_page_preview=True,
             reply_to_message_id=message["message_id"])
 
     def command(self, regexp):
         def decorator(fn):
             self.commands.append((regexp, fn))
+            return fn
         return decorator
+
+    def default(self, callback):
+        self._default = callback
+        return callback
 
     @asyncio.coroutine
     def process_message(self, message):
@@ -45,6 +52,10 @@ class TeleBot:
             m = re.search(patterns, text)
             if m:
                 return handler(message, m)
+
+        # No match, run default if it's a 1to1 chat
+        if "chat" in message and "title" not in message["chat"]:
+            return self._default(message)
 
     @asyncio.coroutine
     def loop(self):

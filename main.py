@@ -31,31 +31,42 @@ def get_username(user):
 
 
 @asyncio.coroutine
-def wiki(message, match, lang):
-    text = match.group(2)
+def wiki(message, text, lang="en", not_found="I don't know :("):
     logger.info("%s:\t%s (%s)", get_username(message["from"]), text, lang)
 
     wiki = yield from search_wiki(text, lang)
     pages = wiki["query"]["pages"]
+
     for pid, page in pages.items():
         if pid == '-1':
-            return (yield from bot.reply_to(message, "Not found :("))
-        yield from bot.reply_to(message, page['extract'])
+            return (yield from bot.reply_to(message, not_found))
+
+        title = page["title"].replace(" ", "_")
+        wiki_link = "https://{0}.wikipedia.org/wiki/{1}".format(lang, title)
+        result = "{0}\n{1}".format(page['extract'], wiki_link)
+
+        yield from bot.reply_to(message, result)
 
 
-@bot.command(r"/?(whatis|what is|who is|define|wiki) (.*)")
+@bot.command(r"/?(whatis|what is|who is|define|wiki) ([^\?]+)\??")
 def wiki_en(message, match):
-    return wiki(message, match, "en")
+    return wiki(message, match.group(2), "en")
 
 
-@bot.command(r"/?(что такое|что за|опредиление|вики) (.*)")
+@bot.command(r"/?(что такое|что за|опредиление|вики) ([^\?]+)\??")
 def wiki_ru(message, match):
-    return wiki(message, match, "ru")
+    return wiki(message, match.group(2), "ru", "Не знаю :(")
 
 
-@bot.command(r"/?(que es|qué es|que significa|qué significa|quien es|quién es) (.*)")
+@bot.command(r"/?(que es|qué es|que significa|qué significa|quien es|quién es) ([^\?]+)\??")
 def wiki_es(message, match):
-    return wiki(message, match, "es")
+    return wiki(message, match.group(2), "es", "No sé :(")
+
+
+@bot.default
+def default(message):
+    return wiki(message, message["text"])
+
 
 logging.basicConfig(level=logging.INFO, filename="WhatisBot.log")
 
