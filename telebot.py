@@ -8,6 +8,13 @@ API_TIMEOUT = 60
 
 
 class TeleBot:
+    """Telegram bot framework designed for asyncio
+
+    Args:
+        api_token - Telegram bot token, ask @BotFather for this
+        api_timeout (optional) - Timeout for long polling
+    """
+
     def __init__(self, api_token, api_timeout=API_TIMEOUT):
         self.api_token = api_token
         self.api_timeout = api_timeout
@@ -19,12 +26,16 @@ class TeleBot:
 
     @asyncio.coroutine
     def api_call(self, method, **params):
+        """Call Telegram API
+        See https://core.telegram.org/bots/api for the reference
+        """
         url = "{0}/bot{1}/{2}".format(API_URL, self.api_token, method)
         response = yield from self.session.request('POST', url, data=params)
         assert response.status == 200
         return (yield from response.json())
 
     def reply_to(self, message, text):
+        """Reply to specific message"""
         return self.api_call(
             'sendMessage',
             chat_id=message["chat"]["id"],
@@ -33,17 +44,27 @@ class TeleBot:
             reply_to_message_id=message["message_id"])
 
     def command(self, regexp):
+        """Decorator for registering commands
+
+        Example:
+        @bot.command(r"/(start|help)")
+        def usage(message, match):
+            pass
+        """
         def decorator(fn):
             self.commands.append((regexp, fn))
             return fn
         return decorator
 
     def default(self, callback):
+        """Set callback for default command
+        Default command is called on unrecognized commands for 1to1 chats
+        """
         self._default = callback
         return callback
 
     @asyncio.coroutine
-    def process_message(self, message):
+    def _process_message(self, message):
         if "text" not in message:
             return
         text = message["text"].lower()
@@ -59,6 +80,15 @@ class TeleBot:
 
     @asyncio.coroutine
     def loop(self):
+        """Return bot's main loop as coroutine
+
+        Use it with asyncio:
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(bot.loop())
+
+        or:
+        loop.create_task(bot.loop())
+        """
         offset = 0
         while self.running:
             resp = yield from self.api_call(
@@ -70,4 +100,4 @@ class TeleBot:
                 logging.debug("update %s", update)
                 offset = max(offset, update["update_id"])
                 message = update["message"]
-                asyncio.async(self.process_message(message))
+                asyncio.async(self._process_message(message))
