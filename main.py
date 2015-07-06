@@ -63,6 +63,11 @@ def wiki_es(message, match):
     return wiki(message, match.group(2), "es", "No sé :(")
 
 
+@bot.command(r"/?(was ist|wo ist) ([^\?]+)\??")
+def wiki_de(message, match):
+    return wiki(message, match.group(2), "de", "Nicht wissen :(")
+
+
 @bot.command("(/start|/?help)")
 def usage(message, match):
     text = """
@@ -76,6 +81,7 @@ who is Nikola Tesla?
 что такое счастье
 что за черт?
 que es tequila
+was ist liebe?
 
 Created by @stepanz
 
