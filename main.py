@@ -24,28 +24,22 @@ def search_wiki(text, lang="en"):
     return (yield from response.json())
 
 
-def get_username(user):
-    parts = ["first_name", "last_name", "username"]
-    title = " ".join(filter(None, (user.get(part) for part in parts)))
-    return title
-
-
 @asyncio.coroutine
 def wiki(message, text, lang="en", not_found="I don't know :("):
-    logger.info("%s:\t%s (%s)", get_username(message["from"]), text, lang)
+    logger.info("%s:\t%s (%s)", message.sender, text, lang)
 
     wiki = yield from search_wiki(text, lang)
     pages = wiki["query"]["pages"]
 
     for pid, page in pages.items():
         if pid == '-1':
-            return (yield from bot.reply_to(message, not_found))
+            return (yield from message.reply(not_found))
 
         title = page["title"].replace(" ", "_")
         wiki_link = "https://{0}.wikipedia.org/wiki/{1}".format(lang, title)
         result = "{0}\n{1}".format(page['extract'], wiki_link)
 
-        yield from bot.reply_to(message, result)
+        yield from message.reply(result)
 
 
 @bot.command(r"/?(whatis|what is|who is|define|wiki) ([^\?]+)\??")
@@ -87,12 +81,12 @@ Created by @stepanz
 
 If you like this bot, please rate it at: https://telegram.me/storebot?start=whatisbot
     """
-    return bot.reply_to(message, text)
+    return message.reply(text)
 
 
 @bot.default
 def default(message):
-    return wiki(message, message["text"])
+    return wiki(message, message.text)
 
 
 logging.basicConfig(level=logging.INFO, filename="WhatisBot.log")
