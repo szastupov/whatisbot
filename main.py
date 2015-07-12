@@ -89,7 +89,7 @@ def default(message):
     return wiki(message, message.text)
 
 
-logging.basicConfig(level=logging.INFO, filename="WhatisBot.log")
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO, filename="WhatisBot.log")
 
-loop = asyncio.get_event_loop()
-loop.run_until_complete(bot.loop())
+    bot.run()
