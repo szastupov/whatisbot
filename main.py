@@ -1,10 +1,12 @@
 import logging
 import asyncio
+import aioredis
 import os
 from aiotg import TgBot
 
 bot = TgBot(os.environ["API_TOKEN"])
 logger = logging.getLogger("WhatisBot")
+redis = None
 
 
 @asyncio.coroutine
@@ -25,7 +27,14 @@ def search_wiki(text, lang="en"):
 
 
 @asyncio.coroutine
-def wiki(message, text, lang="en", not_found="I don't know :("):
+def wiki(message, text, lang=None, not_found="I don't know :("):
+
+    plang = (yield from redis.hget(message.sender, "lang")) or "en"
+    if not lang:
+        lang = plang
+    if lang != plang:
+        yield from redis.hset(message.sender, "lang", lang)
+
     logger.info("%s:\t%s (%s)", message.sender, text, lang)
 
     wiki = yield from search_wiki(text, lang)
@@ -89,7 +98,18 @@ def default(message):
     return wiki(message, message.text)
 
 
+@asyncio.coroutine
+def main():
+    global redis
+    redis = yield from aioredis.create_redis(('localhost', 6379), encoding="utf-8")
+    yield from bot.loop()
+
+
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, filename="WhatisBot.log")
 
-    bot.run()
+    loop = asyncio.get_event_loop()
+    try:
+        loop.run_until_complete(main())
+    except KeyboardInterrupt:
+        bot.stop()
