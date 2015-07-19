@@ -10,6 +10,13 @@ redis = None
 
 
 @asyncio.coroutine
+def search_duck(text):
+    url = "http://api.duckduckgo.com/?format=json&pretty=1&q=" + text
+    response = yield from bot.session.get(url)
+    return (yield from response.json())
+
+
+@asyncio.coroutine
 def search_wiki(text, lang="en"):
     url = "https://{0}.wikipedia.org/w/api.php".format(lang)
     params = {
@@ -21,7 +28,7 @@ def search_wiki(text, lang="en"):
         'explaintext': '',
         'redirects': ''
     }
-    response = yield from bot.session.request('GET', url, params=params)
+    response = yield from bot.session.get(url, params=params)
     assert response.status == 200
     return (yield from response.json())
 
@@ -69,6 +76,18 @@ def wiki_es(message, match):
 @bot.command(r"/?(was ist|wo ist) ([^\?]+)\??")
 def wiki_de(message, match):
     return wiki(message, match.group(2), "de", "Nicht wissen :(")
+
+
+@bot.command(r"/duck (.+)")
+@asyncio.coroutine
+def duck(message, match):
+    result = yield from search_duck(match.group(1))
+    if not result["Results"]:
+        yield from message.reply("Nothing found :(")
+        return
+
+    text = "{Heading}\n{AbstractText}\n{AbstractURL}".format(**result)
+    yield from message.reply(text)
 
 
 @bot.command("(/start|/?help)")
