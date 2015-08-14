@@ -1,6 +1,7 @@
 import logging
 import asyncio
 import aioredis
+import aiohttp
 import os
 from aiotg import TgBot
 
@@ -12,7 +13,7 @@ redis = None
 @asyncio.coroutine
 def search_duck(text):
     url = "http://api.duckduckgo.com/?format=json&pretty=1&q=" + text
-    response = yield from bot.session.get(url)
+    response = yield from aiohttp.get(url)
     return (yield from response.json())
 
 
@@ -28,7 +29,7 @@ def search_wiki(text, lang="en"):
         'explaintext': '',
         'redirects': ''
     }
-    response = yield from bot.session.get(url, params=params)
+    response = yield from aiohttp.get(url, params=params)
     assert response.status == 200
     return (yield from response.json())
 
