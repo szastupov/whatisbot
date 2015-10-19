@@ -64,7 +64,7 @@ def wiki_en(message, match):
     return wiki(message, match.group(2), "en")
 
 
-@bot.command(r"/?(что такое|что за|опредиление|вики) ([^\?]+)\??")
+@bot.command(r"/?(что такое|что за|опредиление|вики|кто такой) ([^\?]+)\??")
 def wiki_ru(message, match):
     return wiki(message, match.group(2), "ru", "Не знаю :(")
 
@@ -111,6 +111,11 @@ Created by @stepanz
 If you like this bot, please rate it at: https://telegram.me/storebot?start=whatisbot
     """
     return message.reply(text)
+
+
+@bot.command("/botfamily_verification_code")
+def botfamily(message, match):
+    return message.reply("6A25EB6266D042FD7AF727084FF9C727")
 
 
 @bot.default
