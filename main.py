@@ -115,7 +115,7 @@ If you like this bot, please rate it at: https://telegram.me/storebot?start=what
 
 @bot.command("/botfamily_verification_code")
 def botfamily(message, match):
-    return message.reply("6A25EB6266D042FD7AF727084FF9C727")
+    return message.reply("F8FF7D52FF9889DE6D6BA0A93A09D768")
 
 
 @bot.default
