@@ -5,16 +5,13 @@ import aiohttp
 import os
 from aiotg import TgBot
 
-bot = TgBot(os.environ["API_TOKEN"])
+bot = TgBot(
+    api_token=os.environ["API_TOKEN"],
+    botan_token=os.environ.get("BOTAN_TOKEN")
+)
+
 logger = logging.getLogger("WhatisBot")
 redis = None
-
-
-@asyncio.coroutine
-def search_duck(text):
-    url = "http://api.duckduckgo.com/?format=json&pretty=1&q=" + text
-    response = yield from aiohttp.get(url)
-    return (yield from response.json())
 
 
 @asyncio.coroutine
@@ -35,64 +32,52 @@ def search_wiki(text, lang="en"):
 
 
 @asyncio.coroutine
-def wiki(message, text, lang=None, not_found="I don't know :("):
+def wiki(chat, text, lang=None, not_found="I don't know :("):
 
-    plang = (yield from redis.hget(message.sender, "lang")) or "en"
+    plang = (yield from redis.hget(chat.sender["id"], "lang")) or "en"
     if not lang:
         lang = plang
     if lang != plang:
-        yield from redis.hset(message.sender, "lang", lang)
+        yield from redis.hset(chat.sender["id"], "lang", lang)
 
-    logger.info("%s:\t%s (%s)", message.sender, text, lang)
+    logger.info("%s:\t%s (%s)", chat.sender, text, lang)
 
     wiki = yield from search_wiki(text, lang)
     pages = wiki["query"]["pages"]
 
     for pid, page in pages.items():
         if pid == '-1':
-            return (yield from message.reply(not_found))
+            return (yield from chat.reply(not_found))
 
         title = page["title"].replace(" ", "_")
         wiki_link = "https://{0}.wikipedia.org/wiki/{1}".format(lang, title)
         result = "{0}\n{1}".format(page['extract'], wiki_link)
 
-        yield from message.reply(result)
+        yield from chat.reply(result)
 
 
 @bot.command(r"/?(whatis|what is|who is|define|wiki) ([^\?]+)\??")
-def wiki_en(message, match):
-    return wiki(message, match.group(2), "en")
+def wiki_en(chat, match):
+    return wiki(chat, match.group(2), "en")
 
 
 @bot.command(r"/?(что такое|что за|опредиление|вики|кто такой) ([^\?]+)\??")
-def wiki_ru(message, match):
-    return wiki(message, match.group(2), "ru", "Не знаю :(")
+def wiki_ru(chat, match):
+    return wiki(chat, match.group(2), "ru", "Не знаю :(")
 
 
 @bot.command(r"/?(que es|qué es|que significa|qué significa|quien es|quién es) ([^\?]+)\??")
-def wiki_es(message, match):
-    return wiki(message, match.group(2), "es", "No sé :(")
+def wiki_es(chat, match):
+    return wiki(chat, match.group(2), "es", "No sé :(")
 
 
 @bot.command(r"/?(was ist|wo ist) ([^\?]+)\??")
-def wiki_de(message, match):
-    return wiki(message, match.group(2), "de", "Nicht wissen :(")
-
-
-@bot.command(r"/duck (.+)")
-@asyncio.coroutine
-def duck(message, match):
-    result = yield from search_duck(match.group(1))
-    if not result["Results"]:
-        yield from message.reply("Nothing found :(")
-        return
-
-    text = "{Heading}\n{AbstractText}\n{AbstractURL}".format(**result)
-    yield from message.reply(text)
+def wiki_de(chat, match):
+    return wiki(chat, match.group(2), "de", "Nicht wissen :(")
 
 
 @bot.command("(/start|/?help)")
-def usage(message, match):
+def usage(chat, match):
     text = """
 Hi! I can search Wikipedia for you and your chat friends.
 
@@ -110,17 +95,12 @@ Created by @stepanz
 
 If you like this bot, please rate it at: https://telegram.me/storebot?start=whatisbot
     """
-    return message.reply(text)
-
-
-@bot.command("/botfamily_verification_code")
-def botfamily(message, match):
-    return message.reply("F8FF7D52FF9889DE6D6BA0A93A09D768")
+    return chat.reply(text)
 
 
 @bot.default
-def default(message):
-    return wiki(message, message.text)
+def default(chat, message):
+    return wiki(chat, message["text"])
 
 
 @asyncio.coroutine
