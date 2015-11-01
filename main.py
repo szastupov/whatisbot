@@ -14,8 +14,7 @@ logger = logging.getLogger("WhatisBot")
 redis = None
 
 
-@asyncio.coroutine
-def search_wiki(text, lang="en"):
+async def search_wiki(text, lang="en"):
     url = "https://{0}.wikipedia.org/w/api.php".format(lang)
     params = {
         'titles': text,
@@ -26,34 +25,33 @@ def search_wiki(text, lang="en"):
         'explaintext': '',
         'redirects': ''
     }
-    response = yield from aiohttp.get(url, params=params)
+    response = await aiohttp.get(url, params=params)
     assert response.status == 200
-    return (yield from response.json())
+    return (await response.json())
 
 
-@asyncio.coroutine
-def wiki(chat, text, lang=None, not_found="I don't know :("):
+async def wiki(chat, text, lang=None, not_found="I don't know :("):
 
-    plang = (yield from redis.hget(chat.sender["id"], "lang")) or "en"
+    plang = (await redis.hget(chat.sender["id"], "lang")) or "en"
     if not lang:
         lang = plang
     if lang != plang:
-        yield from redis.hset(chat.sender["id"], "lang", lang)
+        await redis.hset(chat.sender["id"], "lang", lang)
 
     logger.info("%s:\t%s (%s)", chat.sender, text, lang)
 
-    wiki = yield from search_wiki(text, lang)
+    wiki = await search_wiki(text, lang)
     pages = wiki["query"]["pages"]
 
     for pid, page in pages.items():
         if pid == '-1':
-            return (yield from chat.reply(not_found))
+            return (await chat.reply(not_found))
 
         title = page["title"].replace(" ", "_")
         wiki_link = "https://{0}.wikipedia.org/wiki/{1}".format(lang, title)
         result = "{0}\n{1}".format(page['extract'], wiki_link)
 
-        yield from chat.reply(result)
+        await chat.reply(result)
 
 
 @bot.command(r"/?(whatis|what is|who is|define|wiki) ([^\?]+)\??")
@@ -103,11 +101,10 @@ def default(chat, message):
     return wiki(chat, message["text"])
 
 
-@asyncio.coroutine
-def main():
+async def main():
     global redis
-    redis = yield from aioredis.create_redis(('localhost', 6379), encoding="utf-8")
-    yield from bot.loop()
+    redis = await aioredis.create_redis(('localhost', 6379), encoding="utf-8")
+    await bot.loop()
 
 
 if __name__ == '__main__':
