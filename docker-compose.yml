@@ -1,0 +1,10 @@
+whatisbot:
+  build: .
+  restart: always
+  # volumes:
+  #   - .:/bot
+  links:
+    - redis
+redis:
+  image: redis
+  restart: always

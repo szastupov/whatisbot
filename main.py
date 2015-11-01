@@ -3,12 +3,13 @@ import asyncio
 import aioredis
 import aiohttp
 import os
+import json
 from aiotg import TgBot
 
-bot = TgBot(
-    api_token=os.environ["API_TOKEN"],
-    botan_token=os.environ.get("BOTAN_TOKEN")
-)
+with open("config.json") as cfg:
+    config = json.load(cfg)
+
+bot = TgBot(**config)
 
 logger = logging.getLogger("WhatisBot")
 redis = None
@@ -103,7 +104,8 @@ def default(chat, message):
 
 async def main():
     global redis
-    redis = await aioredis.create_redis(('localhost', 6379), encoding="utf-8")
+    host = os.environ.get('REDIS_HOST', 'localhost')
+    redis = await aioredis.create_redis((host, 6379), encoding="utf-8")
     await bot.loop()
 
 
