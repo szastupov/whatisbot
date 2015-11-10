@@ -1,5 +1,3 @@
-aiohttp==0.17.2
-aioredis==0.2.3
-aiotg==0.1.0
-chardet==2.3.0
-hiredis==0.2.0
+aiohttp
+aioredis
+aiotg
