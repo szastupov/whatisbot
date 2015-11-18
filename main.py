@@ -110,7 +110,7 @@ async def main():
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO, filename="WhatisBot.log")
+    logging.basicConfig(level=logging.INFO)
 
     loop = asyncio.get_event_loop()
     try:
