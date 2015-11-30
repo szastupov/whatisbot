@@ -60,7 +60,7 @@ def wiki_en(chat, match):
     return wiki(chat, match.group(2), "en")
 
 
-@bot.command(r"/?(что такое|что за|опредиление|вики|кто такой) ([^\?]+)\??")
+@bot.command(r"/?(что такое|что за|определение|вики|кто такой) ([^\?]+)\??")
 def wiki_ru(chat, match):
     return wiki(chat, match.group(2), "ru", "Не знаю :(")
 
