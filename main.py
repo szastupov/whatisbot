@@ -50,7 +50,9 @@ async def wiki(chat, text, lang=None, not_found="I don't know :("):
 
         title = page["title"].replace(" ", "_")
         wiki_link = "https://{0}.wikipedia.org/wiki/{1}".format(lang, title)
-        result = "{0}\n{1}".format(page['extract'], wiki_link)
+        max_len = 4095 - len(wiki_link)
+        extract = page['extract'][:max_len]
+        result = "{0}\n{1}".format(extract, wiki_link)
 
         await chat.reply(result)
 
