@@ -91,10 +91,6 @@ who is Nikola Tesla?
 что за черт?
 que es tequila
 was ist liebe?
-
-Created by @stepanz
-
-If you like this bot, please rate it at: https://telegram.me/storebot?start=whatisbot
     """
     return chat.reply(text)
 
