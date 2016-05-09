@@ -74,7 +74,7 @@ def wiki_es(chat, match):
 
 @bot.command(r"/?(o que é|defina|quem é) ([^\?]+)\??")
 def wiki_es(chat, match):
-    return wiki(chat, match.group(2), "pt", "No sé :(")
+    return wiki(chat, match.group(2), "pt", "Não sei :(")
 
 
 @bot.command(r"/?(was ist|wo ist) ([^\?]+)\??")
